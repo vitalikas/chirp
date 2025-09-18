@@ -21,5 +21,10 @@ dependencies {
     "implementation"(libraries.findLibrary("spring-boot-starter-web").get())
 
     "testImplementation"(libraries.findLibrary("spring-boot-starter-test").get())
-    "testRuntimeOnly"(libraries.findLibrary("junit-platform-launcher").get())
+}
+
+allOpen {
+    annotation("jakarta.persistence.Entity")
+    annotation("jakarta.persistence.MappedSuperclass")
+    annotation("jakarta.persistence.Embeddable")
 }

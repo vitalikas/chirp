@@ -23,4 +23,5 @@ tasks.withType<Test> {
 
 dependencies {
     "testImplementation"(libraries.findLibrary("kotlin-test-junit5").get())
+    "testRuntimeOnly"(libraries.findLibrary("junit-platform-launcher").get())
 }
