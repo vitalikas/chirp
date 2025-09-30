@@ -1,5 +1,6 @@
 package lt.vitalijus.chirp.api.exception_handlers
 
+import lt.vitalijus.chirp.domain.exception.InvalidTokenException
 import lt.vitalijus.chirp.domain.exception.PasswordEncodingException
 import lt.vitalijus.chirp.domain.exception.UserAlreadyExistsException
 import org.springframework.http.HttpStatus
@@ -49,6 +50,21 @@ class AuthExceptionHandler {
                 mapOf(
                     "code" to "VALIDATION_ERROR",
                     "errors" to errors
+                )
+            )
+    }
+
+    @ExceptionHandler(InvalidTokenException::class)
+    fun onInvalidTokenException(
+        e: InvalidTokenException
+    ): ResponseEntity<Map<String, Any>> {
+        val error = e.message ?: "Invalid token"
+        return ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(
+                mapOf(
+                    "code" to "INVALID_TOKEN",
+                    "error" to error
                 )
             )
     }

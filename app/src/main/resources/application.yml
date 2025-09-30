@@ -34,3 +34,6 @@ jpa:
       dialect: org.hibernate.dialect.PostgreSQLDialect
       format_sql: true
       show_sql: true
+
+jwt:
+  secret: ${JWT_SECRET_BASE64}
