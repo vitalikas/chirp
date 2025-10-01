@@ -1,8 +1,10 @@
 package lt.vitalijus.chirp.api.exception_handlers
 
+import lt.vitalijus.chirp.domain.exception.InvalidCredentialsException
 import lt.vitalijus.chirp.domain.exception.InvalidTokenException
 import lt.vitalijus.chirp.domain.exception.PasswordEncodingException
 import lt.vitalijus.chirp.domain.exception.UserAlreadyExistsException
+import lt.vitalijus.chirp.domain.exception.UserNotFoundException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -26,7 +28,7 @@ class AuthExceptionHandler {
     fun onPasswordEncodingException(
         e: PasswordEncodingException
     ): ResponseEntity<Map<String, Any>> {
-        val error = e.message ?: "Password encoding failed."
+        val error = e.message ?: "Password encoding failed"
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body(
@@ -64,6 +66,36 @@ class AuthExceptionHandler {
             .body(
                 mapOf(
                     "code" to "INVALID_TOKEN",
+                    "error" to error
+                )
+            )
+    }
+
+    @ExceptionHandler(UserNotFoundException::class)
+    fun onUserNotFoundException(
+        e: UserNotFoundException
+    ): ResponseEntity<Map<String, Any>> {
+        val error = e.message ?: "User not found"
+        return ResponseEntity
+            .status(HttpStatus.NOT_FOUND)
+            .body(
+                mapOf(
+                    "code" to "USER_NOT_FOUND",
+                    "error" to error
+                )
+            )
+    }
+
+    @ExceptionHandler(InvalidCredentialsException::class)
+    fun onInvalidCredentialsException(
+        e: InvalidCredentialsException
+    ): ResponseEntity<Map<String, Any>> {
+        val error = e.message ?: "User not found"
+        return ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(
+                mapOf(
+                    "code" to "INVALID_CREDENTIALS",
                     "error" to error
                 )
             )
