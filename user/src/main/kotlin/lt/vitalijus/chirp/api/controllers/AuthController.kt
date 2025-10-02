@@ -1,13 +1,9 @@
 package lt.vitalijus.chirp.api.controllers
 
 import jakarta.validation.Valid
-import lt.vitalijus.chirp.api.dto.AuthenticatedUserDto
-import lt.vitalijus.chirp.api.dto.LoginRequest
-import lt.vitalijus.chirp.api.dto.RegisterRequest
-import lt.vitalijus.chirp.api.dto.UserDto
+import lt.vitalijus.chirp.api.dto.*
 import lt.vitalijus.chirp.api.mappers.toAuthenticatedUserDto
 import lt.vitalijus.chirp.api.mappers.toUserDto
-import lt.vitalijus.chirp.domain.model.AuthenticatedUser
 import lt.vitalijus.chirp.service.auth.AuthService
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -39,5 +35,21 @@ class AuthController(
             email = body.email,
             password = body.password
         ).toAuthenticatedUserDto()
+    }
+
+    @PostMapping("/refresh")
+    fun refresh(
+        @RequestBody body: RefreshRequest
+    ): AuthenticatedUserDto {
+        return authService.refresh(
+            refreshToken = body.refreshToken
+        ).toAuthenticatedUserDto()
+    }
+
+    @PostMapping("/logout")
+    fun logout(
+        @RequestBody body: LogoutRequest
+    ) {
+        authService.logout(refreshToken = body.refreshToken)
     }
 }

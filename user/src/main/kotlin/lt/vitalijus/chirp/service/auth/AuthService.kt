@@ -120,6 +120,17 @@ class AuthService(
         } ?: throw UserNotFoundException()
     }
 
+    @Transactional
+    fun logout(refreshToken: String) {
+        val userId = jwtService.getUserIdFromToken(token = refreshToken)
+        val hashedToken = hashToken(token = refreshToken)
+
+        refreshTokenRepository.deleteByUserIdAndHashedToken(
+            userId = userId,
+            hashedToken = hashedToken
+        )
+    }
+
     private fun storeRefreshToken(
         userId: UserId,
         token: String
