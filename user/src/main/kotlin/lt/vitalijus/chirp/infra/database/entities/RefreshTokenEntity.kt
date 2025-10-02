@@ -11,7 +11,7 @@ import java.time.Instant
     schema = "user_service",
     indexes = [
         Index(name = "idx_refresh_tokens_user_id", columnList = "user_id"),
-        Index(name = "idx_refresh_tokens_user_token", columnList = "user_id,hashed_token"),
+        Index(name = "idx_refresh_tokens_user_token", columnList = "user_id,hashed_token")
     ]
 )
 class RefreshTokenEntity(

@@ -13,7 +13,7 @@ import kotlin.io.encoding.Base64
 @Service
 class JwtService(
     @param:Value("\${jwt.secret}") private val secretBase64: String,
-    @param:Value("\${jwt.expiration-minutes}") private val expirationMinutes: Int,
+    @param:Value("\${jwt.expiration-minutes}") private val expirationMinutes: Int
 ) {
 
     private val secretKey = Keys.hmacShaKeyFor(
