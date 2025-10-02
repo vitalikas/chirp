@@ -37,3 +37,10 @@ jpa:
 
 jwt:
   secret: ${JWT_SECRET_BASE64}
+
+chirp:
+  email:
+    verification:
+      expiry-hours: 24
+      cleanup-cron: 0 0 3 * * *
+      cleanup-zone: UTC
