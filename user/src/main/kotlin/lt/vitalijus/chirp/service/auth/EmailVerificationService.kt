@@ -5,7 +5,6 @@ import lt.vitalijus.chirp.domain.exception.UserNotFoundException
 import lt.vitalijus.chirp.domain.model.EmailVerificationToken
 import lt.vitalijus.chirp.infra.database.entities.EmailVerificationTokenEntity
 import lt.vitalijus.chirp.infra.database.mappers.toEmailVerificationToken
-import lt.vitalijus.chirp.infra.database.mappers.toUser
 import lt.vitalijus.chirp.infra.database.repositories.EmailVerificationTokenRepository
 import lt.vitalijus.chirp.infra.database.repositories.UserRepository
 import org.springframework.beans.factory.annotation.Value
@@ -62,11 +61,12 @@ class EmailVerificationService(
                 this.usedAt = Instant.now()
             }
         )
-        val updatedUser = userRepository.save(
+
+        userRepository.save(
             verificationToken.user.apply {
                 this.hasVerifiedEmail = true
             }
-        ).toUser()
+        )
     }
 
     @Scheduled(cron = "\${chirp.email.verification.cleanup-cron}", zone = "\${chirp.email.verification.cleanup-zone}")
