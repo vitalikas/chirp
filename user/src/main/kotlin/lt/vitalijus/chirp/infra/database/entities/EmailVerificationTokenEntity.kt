@@ -1,6 +1,7 @@
 package lt.vitalijus.chirp.infra.database.entities
 
 import jakarta.persistence.*
+import lt.vitalijus.chirp.infra.security.EmailTokenGenerator
 import org.hibernate.annotations.CreationTimestamp
 import java.time.Instant
 
@@ -14,7 +15,7 @@ class EmailVerificationTokenEntity(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0,
     @Column(nullable = false, unique = true)
-    var token: String,
+    var token: String = EmailTokenGenerator.generateSecureToken(),
     @Column(nullable = false)
     var expiresAt: Instant,
     @Column
@@ -24,6 +25,4 @@ class EmailVerificationTokenEntity(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     var user: UserEntity
-) {
-
-}
+)
