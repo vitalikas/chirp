@@ -1,10 +1,6 @@
 package lt.vitalijus.chirp.api.exception_handlers
 
-import lt.vitalijus.chirp.domain.exception.InvalidCredentialsException
-import lt.vitalijus.chirp.domain.exception.InvalidTokenException
-import lt.vitalijus.chirp.domain.exception.PasswordEncodingException
-import lt.vitalijus.chirp.domain.exception.UserAlreadyExistsException
-import lt.vitalijus.chirp.domain.exception.UserNotFoundException
+import lt.vitalijus.chirp.domain.exception.*
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -96,6 +92,21 @@ class AuthExceptionHandler {
             .body(
                 mapOf(
                     "code" to "INVALID_CREDENTIALS",
+                    "error" to error
+                )
+            )
+    }
+
+    @ExceptionHandler(EmailNotVerifiedException::class)
+    fun onEmailNotVerifiedException(
+        e: EmailNotVerifiedException
+    ): ResponseEntity<Map<String, Any>> {
+        val error = e.message ?: "Email not verified"
+        return ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(
+                mapOf(
+                    "code" to "EMAIL_NOT_VERIFIED",
                     "error" to error
                 )
             )

@@ -30,9 +30,12 @@ class AuthService(
         username: String,
         password: String
     ): User {
+        val trimmedEmail = email.trim()
+        val trimmedUsername = username.trim()
+
         val user = userRepository.findByEmailOrUsername(
-            email = email.trim(),
-            username = username.trim()
+            email = trimmedEmail,
+            username = trimmedUsername
         )
 
         if (user != null) {
@@ -41,8 +44,8 @@ class AuthService(
 
         val savedUser = userRepository.save(
             UserEntity(
-                email = email.trim(),
-                username = username.trim(),
+                email = trimmedEmail,
+                username = trimmedUsername,
                 hashedPassword = passwordEncoder.encode(rawPassword = password) ?: throw PasswordEncodingException()
             )
         ).toUser()
@@ -62,7 +65,9 @@ class AuthService(
         )
         if (!matches) throw InvalidCredentialsException()
 
-        // TODO: Check for verified email
+        if (!user.hasVerifiedEmail) {
+            throw EmailNotVerifiedException()
+        }
 
         return user.id?.let { userId ->
             val accessToken = jwtService.generateAccessToken(userId = userId)
