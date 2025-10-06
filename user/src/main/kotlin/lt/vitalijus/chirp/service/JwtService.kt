@@ -1,4 +1,4 @@
-package lt.vitalijus.chirp.service.auth
+package lt.vitalijus.chirp.service
 
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts

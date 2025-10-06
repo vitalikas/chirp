@@ -3,7 +3,7 @@ package lt.vitalijus.chirp.infra.security
 import java.security.SecureRandom
 import java.util.Base64
 
-object EmailTokenGenerator {
+object TokenGenerator {
 
     fun generateSecureToken(): String {
         val bytes = ByteArray(32) { 0 }

@@ -1,4 +1,4 @@
-package lt.vitalijus.chirp.service.auth
+package lt.vitalijus.chirp.service
 
 import lt.vitalijus.chirp.domain.exception.InvalidTokenException
 import lt.vitalijus.chirp.domain.exception.UserNotFoundException
@@ -24,18 +24,11 @@ class EmailVerificationService(
     @Transactional
     fun createVerificationToken(email: String): EmailVerificationToken {
         val userEntity = userRepository.findByEmail(email = email) ?: throw UserNotFoundException()
-        val existingTokens = emailVerificationRepository.findByUserAndUsedAtIsNull(user = userEntity)
 
-        val now = Instant.now()
-        val usedTokens = existingTokens.map {
-            it.apply {
-                this.usedAt = now
-            }
-        }
-        emailVerificationRepository.saveAll(usedTokens)
+        emailVerificationRepository.invalidateActiveTokensForUser(user = userEntity)
 
         val token = EmailVerificationTokenEntity(
-            expiresAt = now.plus(expiryHours, ChronoUnit.HOURS),
+            expiresAt = Instant.now().plus(expiryHours, ChronoUnit.HOURS),
             user = userEntity,
         )
         emailVerificationRepository.save(token)

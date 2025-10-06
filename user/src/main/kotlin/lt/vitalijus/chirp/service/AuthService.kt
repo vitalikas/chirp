@@ -1,4 +1,4 @@
-package lt.vitalijus.chirp.service.auth
+package lt.vitalijus.chirp.service
 
 import lt.vitalijus.chirp.domain.exception.*
 import lt.vitalijus.chirp.domain.model.AuthenticatedUser
