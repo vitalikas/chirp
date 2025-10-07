@@ -111,4 +111,19 @@ class AuthExceptionHandler {
                 )
             )
     }
+
+    @ExceptionHandler(SamePasswordException::class)
+    fun onSamePasswordException(
+        e: SamePasswordException
+    ): ResponseEntity<Map<String, Any>> {
+        val error = e.message ?: "New password must be different from the current password"
+        return ResponseEntity
+            .status(HttpStatus.CONFLICT)
+            .body(
+                mapOf(
+                    "code" to "SAME_PASSWORD",
+                    "error" to error
+                )
+            )
+    }
 }
