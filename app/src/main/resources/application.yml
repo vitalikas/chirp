@@ -43,3 +43,7 @@ chirp:
       expiry-hours: 24
       cleanup-cron: 0 0 3 * * *
       cleanup-zone: UTC
+    reset-password:
+      expiry-minutes: 30
+      cleanup-cron: 0 0 3 * * *
+      cleanup-zone: UTC
