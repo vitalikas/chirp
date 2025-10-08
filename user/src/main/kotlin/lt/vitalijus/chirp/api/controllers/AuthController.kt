@@ -4,6 +4,7 @@ import jakarta.validation.Valid
 import lt.vitalijus.chirp.api.dto.*
 import lt.vitalijus.chirp.api.mappers.toAuthenticatedUserDto
 import lt.vitalijus.chirp.api.mappers.toUserDto
+import lt.vitalijus.chirp.infra.rate_limiting.EmailRateLimiter
 import lt.vitalijus.chirp.service.AuthService
 import lt.vitalijus.chirp.service.EmailVerificationService
 import lt.vitalijus.chirp.service.PasswordResetService
@@ -14,7 +15,8 @@ import org.springframework.web.bind.annotation.*
 class AuthController(
     private val authService: AuthService,
     private val emailVerificationService: EmailVerificationService,
-    private val passwordResetService: PasswordResetService
+    private val passwordResetService: PasswordResetService,
+    private val rateLimiter: EmailRateLimiter
 ) {
 
     @PostMapping("/register")
@@ -62,6 +64,17 @@ class AuthController(
         @RequestParam token: String
     ) {
         emailVerificationService.verifyEmail(token = token)
+    }
+
+    @PostMapping("/resend-verification")
+    fun resendVerification(
+        @Valid @RequestBody body: EmailRequest
+    ) {
+        rateLimiter.withRateLimit(
+            email = body.email,
+        ) {
+            emailVerificationService.resendVerificationEmail(email = body.email)
+        }
     }
 
     @PostMapping("/forgot-password")

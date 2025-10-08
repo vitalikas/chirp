@@ -62,6 +62,10 @@ class EmailVerificationService(
         )
     }
 
+    fun resendVerificationEmail(email: String) {
+        // TODO: Tigger resend
+    }
+
     @Scheduled(cron = "\${chirp.email.verification.cleanup-cron}", zone = "\${chirp.email.verification.cleanup-zone}")
     fun cleanupExpiredTokens() {
         emailVerificationRepository.deleteByExpiresAtLessThan(

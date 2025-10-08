@@ -112,6 +112,21 @@ class AuthExceptionHandler {
             )
     }
 
+    @ExceptionHandler(RateLimitException::class)
+    fun onRateLimitException(
+        e: RateLimitException
+    ): ResponseEntity<Map<String, Any>> {
+        val error = e.message ?: "Rate limit exceeded"
+        return ResponseEntity
+            .status(HttpStatus.TOO_MANY_REQUESTS)
+            .body(
+                mapOf(
+                    "code" to "RATE_LIMIT_EXCEEDED",
+                    "error" to error
+                )
+            )
+    }
+
     @ExceptionHandler(SamePasswordException::class)
     fun onSamePasswordException(
         e: SamePasswordException
