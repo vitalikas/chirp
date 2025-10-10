@@ -1,6 +1,7 @@
 package lt.vitalijus.chirp.api.controllers
 
 import jakarta.validation.Valid
+import lt.vitalijus.chirp.api.config.IpRateLimit
 import lt.vitalijus.chirp.api.dto.*
 import lt.vitalijus.chirp.api.mappers.toAuthenticatedUserDto
 import lt.vitalijus.chirp.api.mappers.toUserDto
@@ -9,6 +10,7 @@ import lt.vitalijus.chirp.service.AuthService
 import lt.vitalijus.chirp.service.EmailVerificationService
 import lt.vitalijus.chirp.service.PasswordResetService
 import org.springframework.web.bind.annotation.*
+import java.util.concurrent.TimeUnit
 
 @RestController
 @RequestMapping("/api/auth")
@@ -20,6 +22,11 @@ class AuthController(
 ) {
 
     @PostMapping("/register")
+    @IpRateLimit(
+        requests = 10,
+        duration = 1L,
+        timeUnit = TimeUnit.HOURS
+    )
     fun register(
         @Valid @RequestBody body: RegisterRequest
     ): UserDto {
@@ -34,6 +41,11 @@ class AuthController(
     }
 
     @PostMapping("/login")
+    @IpRateLimit(
+        requests = 10,
+        duration = 1L,
+        timeUnit = TimeUnit.HOURS
+    )
     fun login(
         @RequestBody body: LoginRequest
     ): AuthenticatedUserDto {
@@ -44,6 +56,11 @@ class AuthController(
     }
 
     @PostMapping("/refresh")
+    @IpRateLimit(
+        requests = 10,
+        duration = 1L,
+        timeUnit = TimeUnit.HOURS
+    )
     fun refresh(
         @RequestBody body: RefreshRequest
     ): AuthenticatedUserDto {
@@ -67,6 +84,11 @@ class AuthController(
     }
 
     @PostMapping("/resend-verification")
+    @IpRateLimit(
+        requests = 10,
+        duration = 1L,
+        timeUnit = TimeUnit.HOURS
+    )
     fun resendVerification(
         @Valid @RequestBody body: EmailRequest
     ) {
@@ -78,6 +100,11 @@ class AuthController(
     }
 
     @PostMapping("/forgot-password")
+    @IpRateLimit(
+        requests = 10,
+        duration = 1L,
+        timeUnit = TimeUnit.HOURS
+    )
     fun forgotPassword(
         @Valid @RequestBody body: EmailRequest
     ) {
