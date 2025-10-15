@@ -87,7 +87,7 @@ class JwtService(
                 .build()
                 .parseSignedClaims(rawToken)
                 .payload
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }

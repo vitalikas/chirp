@@ -141,4 +141,19 @@ class AuthExceptionHandler {
                 )
             )
     }
+
+    @ExceptionHandler(UnauthorizedException::class)
+    fun onUnauthorizedException(
+        e: UnauthorizedException
+    ): ResponseEntity<Map<String, Any>> {
+        val error = e.message ?: "Unauthorized"
+        return ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(
+                mapOf(
+                    "code" to "UNAUTHORIZED",
+                    "error" to error
+                )
+            )
+    }
 }

@@ -5,6 +5,7 @@ import lt.vitalijus.chirp.api.config.IpRateLimit
 import lt.vitalijus.chirp.api.dto.*
 import lt.vitalijus.chirp.api.mappers.toAuthenticatedUserDto
 import lt.vitalijus.chirp.api.mappers.toUserDto
+import lt.vitalijus.chirp.api.util.requestUserId
 import lt.vitalijus.chirp.infra.rate_limiting.EmailRateLimiter
 import lt.vitalijus.chirp.service.AuthService
 import lt.vitalijus.chirp.service.EmailVerificationService
@@ -127,6 +128,10 @@ class AuthController(
     fun changePassword(
         @Valid @RequestBody body: ChangePasswordRequest
     ) {
-        // TODO: Extract request user ID and call service
+        passwordResetService.changePassword(
+            userId = requestUserId,
+            oldPassword = body.oldPassword,
+            newPassword = body.newPassword
+        )
     }
 }
