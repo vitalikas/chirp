@@ -1,7 +1,7 @@
 package lt.vitalijus.chirp.api.util
 
 import lt.vitalijus.chirp.domain.exception.UnauthorizedException
-import lt.vitalijus.chirp.domain.model.UserId
+import lt.vitalijus.chirp.domain.events.type.UserId
 import org.springframework.security.core.context.SecurityContextHolder
 
 val requestUserId: UserId

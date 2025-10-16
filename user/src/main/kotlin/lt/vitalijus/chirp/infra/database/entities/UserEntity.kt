@@ -1,7 +1,7 @@
 package lt.vitalijus.chirp.infra.database.entities
 
 import jakarta.persistence.*
-import lt.vitalijus.chirp.domain.model.UserId
+import lt.vitalijus.chirp.domain.events.type.UserId
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
 import java.time.Instant

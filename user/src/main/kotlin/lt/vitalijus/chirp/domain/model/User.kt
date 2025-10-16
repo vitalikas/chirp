@@ -1,8 +1,6 @@
 package lt.vitalijus.chirp.domain.model
 
-import java.util.UUID
-
-typealias UserId = UUID
+import lt.vitalijus.chirp.domain.events.type.UserId
 
 data class User(
     val id: UserId,

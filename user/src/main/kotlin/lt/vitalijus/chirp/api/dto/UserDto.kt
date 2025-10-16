@@ -1,6 +1,6 @@
 package lt.vitalijus.chirp.api.dto
 
-import lt.vitalijus.chirp.domain.model.UserId
+import lt.vitalijus.chirp.domain.events.type.UserId
 
 data class UserDto(
     val id: UserId,

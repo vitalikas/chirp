@@ -1,9 +1,9 @@
 package lt.vitalijus.chirp.service
 
+import lt.vitalijus.chirp.domain.events.type.UserId
 import lt.vitalijus.chirp.domain.exception.*
 import lt.vitalijus.chirp.domain.model.AuthenticatedUser
 import lt.vitalijus.chirp.domain.model.User
-import lt.vitalijus.chirp.domain.model.UserId
 import lt.vitalijus.chirp.infra.database.entities.RefreshTokenEntity
 import lt.vitalijus.chirp.infra.database.entities.UserEntity
 import lt.vitalijus.chirp.infra.database.mappers.toUser

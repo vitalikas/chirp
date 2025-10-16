@@ -1,7 +1,7 @@
 package lt.vitalijus.chirp.service
 
+import lt.vitalijus.chirp.domain.events.type.UserId
 import lt.vitalijus.chirp.domain.exception.*
-import lt.vitalijus.chirp.domain.model.UserId
 import lt.vitalijus.chirp.infra.database.entities.PasswordResetTokenEntity
 import lt.vitalijus.chirp.infra.database.repositories.PasswordResetTokenRepository
 import lt.vitalijus.chirp.infra.database.repositories.RefreshTokenRepository

@@ -3,8 +3,8 @@ package lt.vitalijus.chirp.service
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
+import lt.vitalijus.chirp.domain.events.type.UserId
 import lt.vitalijus.chirp.domain.exception.InvalidTokenException
-import lt.vitalijus.chirp.domain.model.UserId
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.util.*
