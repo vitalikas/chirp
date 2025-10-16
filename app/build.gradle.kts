@@ -7,7 +7,5 @@ dependencies {
 	implementation(projects.chat)
 	implementation(projects.notification)
 	implementation(projects.common)
-
-	implementation(libs.spring.boot.starter.security)
-	implementation(libs.spring.boot.starter.data.redis)
+	implementation(projects.security)
 }
