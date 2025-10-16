@@ -1,0 +1,10 @@
+# Security module configuration
+jwt:
+  secret: ${JWT_SECRET_BASE64}
+
+nginx:
+  trusted-ips:
+    - "127.0.0.1" #nginx on same machine
+    - "::1" #IPv6 localhost
+    - "172.17.0.0/16" #nginx container IP when using Docker
+    - "10.0.0.5/32" #nginx server IP (if separate machine)

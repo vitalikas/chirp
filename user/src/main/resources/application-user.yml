@@ -1,0 +1,60 @@
+# User module configuration
+spring:
+  datasource:
+    url: jdbc:postgresql://db.lpxhbjjlyomsbeepyogu.supabase.co:5432/postgres
+    username: postgres
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: chirp-hikari
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 20000
+      validation-timeout: 5000
+      max-lifetime: 240000
+      idle-timeout: 180000
+      keepalive-time: 120000
+      data-source-properties:
+        prepareThreshold: 5
+        preparedStatementCacheQueries: 256
+        preparedStatementCacheSizeMiB: 5
+        tcpKeepAlive: true
+        socketTimeout: 30
+        connectTimeout: 10
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        show_sql: true
+
+  data:
+    redis:
+      host: "redis-13785.c328.europe-west3-1.gce.redns.redis-cloud.com"
+      password: "${REDIS_PASSWORD}"
+      username: "default"
+      port: 13785
+      connect-timeout: 5000ms
+      timeout: 2000ms
+
+jwt:
+  secret: ${JWT_SECRET_BASE64}
+
+chirp:
+  email:
+    verification:
+      expiry-hours: 24
+      cleanup-cron: 0 0 3 * * *
+      cleanup-zone: UTC
+    reset-password:
+      expiry-minutes: 30
+      cleanup-cron: 0 0 3 * * *
+      cleanup-zone: UTC
+
+nginx:
+  trusted-ips:
+    - "127.0.0.1"
+    - "::1"
+    - "172.17.0.0/16"
+    - "10.0.0.5/32"
