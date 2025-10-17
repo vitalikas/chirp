@@ -1,5 +1,7 @@
 package lt.vitalijus.chirp.service
 
+import lt.vitalijus.chirp.domain.events.EventPublisher
+import lt.vitalijus.chirp.domain.events.user.UserEvent
 import lt.vitalijus.chirp.domain.exception.InvalidTokenException
 import lt.vitalijus.chirp.domain.exception.UserNotFoundException
 import lt.vitalijus.chirp.domain.model.EmailVerificationToken
@@ -16,29 +18,30 @@ import java.time.temporal.ChronoUnit
 
 @Service
 class EmailVerificationService(
-    private val emailVerificationRepository: EmailVerificationTokenRepository,
+    private val emailVerificationTokenRepository: EmailVerificationTokenRepository,
     private val userRepository: UserRepository,
-    @param:Value("\${chirp.email.verification.expiry-hours}") private val expiryHours: Long
+    @param:Value("\${chirp.email.verification.expiry-hours}") private val expiryHours: Long,
+    private val eventPublisher: EventPublisher
 ) {
 
     @Transactional
     fun createVerificationToken(email: String): EmailVerificationToken {
         val userEntity = userRepository.findByEmail(email = email) ?: throw UserNotFoundException()
 
-        emailVerificationRepository.invalidateActiveTokensForUser(user = userEntity)
+        emailVerificationTokenRepository.invalidateActiveTokensForUser(user = userEntity)
 
         val token = EmailVerificationTokenEntity(
             expiresAt = Instant.now().plus(expiryHours, ChronoUnit.HOURS),
             user = userEntity,
         )
-        emailVerificationRepository.save(token)
+        emailVerificationTokenRepository.save(token)
 
         return token.toEmailVerificationToken()
     }
 
     @Transactional
     fun verifyEmail(token: String) {
-        val verificationToken = emailVerificationRepository.findByToken(token)
+        val verificationToken = emailVerificationTokenRepository.findByToken(token)
             ?: throw InvalidTokenException("Email verification token not found.")
 
         if (verificationToken.isUsed) {
@@ -49,7 +52,7 @@ class EmailVerificationService(
             throw InvalidTokenException("Email verification token is expired.")
         }
 
-        emailVerificationRepository.save(
+        emailVerificationTokenRepository.save(
             verificationToken.apply {
                 this.usedAt = Instant.now()
             }
@@ -62,13 +65,27 @@ class EmailVerificationService(
         )
     }
 
+    @Transactional
     fun resendVerificationEmail(email: String) {
-        // TODO: Tigger resend
+        val token = createVerificationToken(email = email)
+
+        if (token.user.hasEmailVerified) {
+            return
+        }
+
+        eventPublisher.publish(
+            event = UserEvent.RequestResendVerification(
+                userId = token.user.id,
+                email = token.user.email,
+                username = token.user.username,
+                verificationToken = token.token
+            )
+        )
     }
 
     @Scheduled(cron = "\${chirp.email.verification.cleanup-cron}", zone = "\${chirp.email.verification.cleanup-zone}")
     fun cleanupExpiredTokens() {
-        emailVerificationRepository.deleteByExpiresAtLessThan(
+        emailVerificationTokenRepository.deleteByExpiresAtLessThan(
             now = Instant.now()
         )
     }

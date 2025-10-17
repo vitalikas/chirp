@@ -37,7 +37,6 @@ class AuthController(
             password = body.password
         ).toUserDto()
 
-        val verificationToken = emailVerificationService.createVerificationToken(email = body.email)
         return user
     }
 

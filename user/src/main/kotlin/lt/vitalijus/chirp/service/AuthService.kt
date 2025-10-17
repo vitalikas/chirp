@@ -1,6 +1,8 @@
 package lt.vitalijus.chirp.service
 
+import lt.vitalijus.chirp.domain.events.EventPublisher
 import lt.vitalijus.chirp.domain.events.type.UserId
+import lt.vitalijus.chirp.domain.events.user.UserEvent
 import lt.vitalijus.chirp.domain.exception.*
 import lt.vitalijus.chirp.domain.model.AuthenticatedUser
 import lt.vitalijus.chirp.domain.model.User
@@ -22,7 +24,9 @@ class AuthService(
     private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder,
     private val jwtService: JwtService,
-    private val refreshTokenRepository: RefreshTokenRepository
+    private val refreshTokenRepository: RefreshTokenRepository,
+    private val emailVerificationService: EmailVerificationService,
+    private val eventPublisher: EventPublisher
 ) {
 
     fun register(
@@ -49,6 +53,17 @@ class AuthService(
                 hashedPassword = passwordEncoder.encode(rawPassword = password) ?: throw PasswordEncodingException()
             )
         ).toUser()
+
+        val verificationToken = emailVerificationService.createVerificationToken(email = email)
+
+        eventPublisher.publish(
+            event = UserEvent.Created(
+                userId = savedUser.id,
+                email = savedUser.email,
+                username = savedUser.username,
+                verificationToken = verificationToken.token,
+            )
+        )
 
         return savedUser
     }
