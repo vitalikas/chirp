@@ -7,5 +7,6 @@ dependencies {
 
     api(libs.kotlin.reflect)
     api(libs.jackson.module.kotlin)
+    api(libs.jackson.datatype.jsr310)
     implementation(libs.spring.boot.starter.amqp)
 }
