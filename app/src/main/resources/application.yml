@@ -17,9 +17,9 @@ spring:
       minimum-idle: 5
       connection-timeout: 20000
       validation-timeout: 5000
-      max-lifetime: 240000
-      idle-timeout: 180000
-      keepalive-time: 120000
+      max-lifetime: 120000
+      idle-timeout: 60000
+      keepalive-time: 60000
       data-source-properties:
         prepareThreshold: 5
         preparedStatementCacheQueries: 256

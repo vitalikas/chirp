@@ -1,4 +1,3 @@
-# Notification module configuration
 spring:
   rabbitmq:
     host: kebnekaise.lmq.cloudamqp.com
