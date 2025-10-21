@@ -10,4 +10,5 @@ dependencies {
     implementation(libs.jackson.datatype.jsr310)
     implementation(libs.spring.boot.starter.amqp)
     implementation(libs.spring.boot.starter.thymeleaf)
+    implementation(libs.spring.boot.starter.mail)
 }
