@@ -5,8 +5,8 @@ plugins {
 dependencies {
     implementation(projects.common)
 
-    api(libs.kotlin.reflect)
-    api(libs.jackson.module.kotlin)
-    api(libs.jackson.datatype.jsr310)
+    implementation(libs.kotlin.reflect)
+    implementation(libs.jackson.module.kotlin)
+    implementation(libs.jackson.datatype.jsr310)
     implementation(libs.spring.boot.starter.amqp)
 }
