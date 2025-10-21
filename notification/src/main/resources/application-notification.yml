@@ -6,6 +6,8 @@ spring:
     ssl:
       enabled: true
     virtual-host: fnivwunl
+    requested-heartbeat: 30
+    connection-timeout: 30000
     listener:
       simple:
         acknowledge-mode: auto
