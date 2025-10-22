@@ -17,8 +17,8 @@ spring:
       minimum-idle: 5
       connection-timeout: 20000
       validation-timeout: 5000
-      max-lifetime: 120000
-      idle-timeout: 60000
+      max-lifetime: 30000
+      idle-timeout: 30000
       keepalive-time: 60000
       data-source-properties:
         prepareThreshold: 5
@@ -40,3 +40,8 @@ spring:
       - user
       - notification
       - security
+    group:
+      dev:
+        - notification-dev
+      prod:
+        - notification-prod

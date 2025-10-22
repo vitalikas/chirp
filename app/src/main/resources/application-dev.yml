@@ -1,7 +1,4 @@
 spring:
-  profiles:
-    include:
-      - notification-dev
   jpa:
     hibernate:
       ddl-auto: update
