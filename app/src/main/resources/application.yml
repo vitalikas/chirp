@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8088
 
 spring:
   application:
@@ -16,14 +16,15 @@ spring:
       maximum-pool-size: 10
       minimum-idle: 5
       connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 12000000
       validation-timeout: 5000
-      max-lifetime: 30000
-      idle-timeout: 30000
-      keepalive-time: 60000
+
       data-source-properties:
         prepareThreshold: 5
         preparedStatementCacheQueries: 256
         preparedStatementCacheSizeMiB: 5
+
         tcpKeepAlive: true
         socketTimeout: 30
         connectTimeout: 10

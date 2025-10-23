@@ -10,3 +10,8 @@ spring:
           auth: true
           starttls:
             enable: true
+
+chirp:
+  email:
+    from: "vitalikas@yopmail.com"
+    url: "http://localhost:${server.port}"

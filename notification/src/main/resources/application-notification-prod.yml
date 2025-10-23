@@ -10,3 +10,8 @@ spring:
           auth: true
           starttls:
             enable: true
+
+chirp:
+  email:
+    from: "noreply@vitalijus.lt"
+    url: "https://chirp.vitalijus.lt"

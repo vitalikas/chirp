@@ -1,6 +1,8 @@
 package lt.vitalijus.chirp.service
 
+import lt.vitalijus.chirp.domain.events.EventPublisher
 import lt.vitalijus.chirp.domain.events.type.UserId
+import lt.vitalijus.chirp.domain.events.user.UserEvent
 import lt.vitalijus.chirp.domain.exception.*
 import lt.vitalijus.chirp.infra.database.entities.PasswordResetTokenEntity
 import lt.vitalijus.chirp.infra.database.repositories.PasswordResetTokenRepository
@@ -22,7 +24,8 @@ class PasswordResetService(
     private val refreshTokenRepository: RefreshTokenRepository,
     private val passwordEncoder: PasswordEncoder,
     @param:Value("\${chirp.email.reset-password.expiry-minutes}")
-    private val expiryMinutes: Long
+    private val expiryMinutes: Long,
+    private val eventPublisher: EventPublisher
 ) {
 
     @Transactional
@@ -37,7 +40,15 @@ class PasswordResetService(
         )
         passwordResetTokenRepository.save(token)
 
-        // TODO: Inform notification service about password reset trigger to send email
+        eventPublisher.publish(
+            event = UserEvent.RequestResetPassword(
+                userId = user.id!!,
+                email = user.email,
+                username = user.username,
+                passwordResetToken = token.token,
+                expiresInMinutes = expiryMinutes
+            )
+        )
     }
 
     @Transactional
@@ -100,7 +111,10 @@ class PasswordResetService(
         )
     }
 
-    @Scheduled(cron = "\${chirp.email.reset-password.cleanup-cron}", zone = "\${chirp.email.reset-password.cleanup-zone}")
+    @Scheduled(
+        cron = "\${chirp.email.reset-password.cleanup-cron}",
+        zone = "\${chirp.email.reset-password.cleanup-zone}"
+    )
     fun cleanupExpiredTokens() {
         passwordResetTokenRepository.deleteByExpiresAtLessThan(
             now = Instant.now()
