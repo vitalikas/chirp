@@ -3,8 +3,11 @@ spring:
     include:
       - notification-prod
   jpa:
-    hibernate:
-      ddl-auto: validate
+    properties:
+      hibernate:
+        ddl-auto: validate
+        show_sql: false
+        format_sql: false
 
 jwt:
   expiration-minutes: 15

@@ -29,6 +29,7 @@ class AuthService(
     private val eventPublisher: EventPublisher
 ) {
 
+    @Transactional
     fun register(
         email: String,
         username: String,
