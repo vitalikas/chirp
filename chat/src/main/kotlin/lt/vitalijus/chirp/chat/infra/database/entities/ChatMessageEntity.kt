@@ -42,7 +42,7 @@ class ChatMessageEntity(
     )
     var chat: ChatEntity? = null,
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(
         name = "sender_id",
         nullable = false,
