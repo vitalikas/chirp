@@ -3,4 +3,6 @@ plugins {
 }
 
 dependencies {
+
+    implementation(libs.spring.boot.starter.security)
 }
