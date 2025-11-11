@@ -17,5 +17,5 @@ interface ChatParticipantRepository : JpaRepository<ChatParticipantEntity, UserI
         WHERE LOWER(p.username) = :query OR LOWER(p.email) = :query
     """
     )
-    fun findByEmailOrUsername(query: String): ChatParticipant?
+    fun findByEmailOrUsername(query: String): ChatParticipantEntity?
 }
