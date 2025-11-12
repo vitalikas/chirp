@@ -1,6 +1,7 @@
-package lt.vitalijus.chirp.infra.message_queue
+package lt.vitalijus.chirp.infra.messaging
 
 import lt.vitalijus.chirp.domain.events.user.UserEvent
+import lt.vitalijus.chirp.infra.message_queue.MessageQueues
 import lt.vitalijus.chirp.infra.service.EmailService
 import org.springframework.amqp.rabbit.annotation.RabbitListener
 import org.springframework.stereotype.Component
