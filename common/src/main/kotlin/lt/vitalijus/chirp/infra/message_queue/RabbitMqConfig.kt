@@ -113,11 +113,11 @@ class RabbitMqConfig {
     @Bean
     fun chatUserEventsBinding(
         chatUserEventsQueue: Queue,
-        chatExchange: TopicExchange
+        userExchange: TopicExchange
     ): Binding {
         return BindingBuilder
             .bind(chatUserEventsQueue)
-            .to(chatExchange)
+            .to(userExchange)
             .with("user.*")
     }
 }
