@@ -4,6 +4,7 @@ import lt.vitalijus.chirp.domain.models.Chat
 import lt.vitalijus.chirp.domain.models.ChatMessage
 import lt.vitalijus.chirp.domain.models.ChatParticipant
 import lt.vitalijus.chirp.infra.database.entities.ChatEntity
+import lt.vitalijus.chirp.infra.database.entities.ChatMessageEntity
 import lt.vitalijus.chirp.infra.database.entities.ChatParticipantEntity
 
 fun ChatEntity.toChat(lastMessage: ChatMessage? = null): Chat {
@@ -34,5 +35,15 @@ fun ChatParticipant.toChatParticipantEntity(): ChatParticipantEntity {
         email = this.email,
         username = this.username,
         profilePictureUrl = this.profilePictureUrl
+    )
+}
+
+fun ChatMessageEntity.toChatMessage(): ChatMessage {
+    return ChatMessage(
+        id = this.id!!,
+        chatId = this.chatId,
+        sender = this.sender.toChatParticipant(),
+        content = this.content,
+        createdAt = this.createdAt
     )
 }
