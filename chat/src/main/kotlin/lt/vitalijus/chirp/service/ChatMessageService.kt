@@ -1,7 +1,5 @@
 package lt.vitalijus.chirp.service
 
-import lt.vitalijus.chirp.api.dto.ChatMessageDto
-import lt.vitalijus.chirp.api.mappers.toChatMessageDto
 import lt.vitalijus.chirp.domain.events.type.ChatId
 import lt.vitalijus.chirp.domain.events.type.ChatMessageId
 import lt.vitalijus.chirp.domain.events.type.UserId
@@ -15,11 +13,9 @@ import lt.vitalijus.chirp.infra.database.mappers.toChatMessage
 import lt.vitalijus.chirp.infra.database.repositories.ChatMessageRepository
 import lt.vitalijus.chirp.infra.database.repositories.ChatParticipantRepository
 import lt.vitalijus.chirp.infra.database.repositories.ChatRepository
-import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.Instant
 
 @Service
 class ChatMessageService(
@@ -27,22 +23,6 @@ class ChatMessageService(
     private val chatParticipantRepository: ChatParticipantRepository,
     private val chatMessageRepository: ChatMessageRepository
 ) {
-
-    fun getChatMessages(
-        chatId: ChatId,
-        before: Instant?,
-        pageSize: Int
-    ): List<ChatMessageDto> {
-        return chatMessageRepository
-            .findByChatIdBefore(
-                chatId = chatId,
-                before = before ?: Instant.now(),
-                pageable = PageRequest.of(0, pageSize)
-            )
-            .content
-            .asReversed()
-            .map { it.toChatMessage().toChatMessageDto() }
-    }
 
     @Transactional
     fun sendMessage(

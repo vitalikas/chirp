@@ -3,18 +3,38 @@ package lt.vitalijus.chirp.api.controllers
 import jakarta.validation.Valid
 import lt.vitalijus.chirp.api.dto.AddParticipantToChatDto
 import lt.vitalijus.chirp.api.dto.ChatDto
+import lt.vitalijus.chirp.api.dto.ChatMessageDto
 import lt.vitalijus.chirp.api.dto.CreateChatRequest
 import lt.vitalijus.chirp.api.mappers.toChatDto
 import lt.vitalijus.chirp.api.util.requestUserId
 import lt.vitalijus.chirp.domain.events.type.ChatId
+import lt.vitalijus.chirp.service.ChatMessageService
 import lt.vitalijus.chirp.service.ChatService
 import org.springframework.web.bind.annotation.*
+import java.time.Instant
 
 @RestController
 @RequestMapping("/api/chat")
 class ChatController(
     private val chatService: ChatService
 ) {
+
+    companion object {
+        private const val DEFAULT_PAGE_SIZE = 20
+    }
+
+    @GetMapping("/{chatId}/messages")
+    fun getMessagesForChat(
+        @PathVariable("chatId") chatId: ChatId,
+        @RequestParam("before", required = false) before: Instant? = null,
+        @RequestParam("pageSize", required = false) pageSize: Int = DEFAULT_PAGE_SIZE
+    ): List<ChatMessageDto> {
+        return chatService.getChatMessages(
+            chatId = chatId,
+            before = before,
+            pageSize = pageSize
+        )
+    }
 
     @PostMapping
     fun createChat(
