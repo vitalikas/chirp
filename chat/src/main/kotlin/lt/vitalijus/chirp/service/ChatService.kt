@@ -2,6 +2,8 @@ package lt.vitalijus.chirp.service
 
 import lt.vitalijus.chirp.api.dto.ChatMessageDto
 import lt.vitalijus.chirp.api.mappers.toChatMessageDto
+import lt.vitalijus.chirp.domain.events.ChatParticipantJoinedEvent
+import lt.vitalijus.chirp.domain.events.ChatParticipantLeftEvent
 import lt.vitalijus.chirp.domain.events.type.ChatId
 import lt.vitalijus.chirp.domain.events.type.UserId
 import lt.vitalijus.chirp.domain.exception.ChatNotFoundException
@@ -16,6 +18,7 @@ import lt.vitalijus.chirp.infra.database.mappers.toChatMessage
 import lt.vitalijus.chirp.infra.database.repositories.ChatMessageRepository
 import lt.vitalijus.chirp.infra.database.repositories.ChatParticipantRepository
 import lt.vitalijus.chirp.infra.database.repositories.ChatRepository
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -26,7 +29,8 @@ import java.time.Instant
 class ChatService(
     private val chatRepository: ChatRepository,
     private val chatParticipantRepository: ChatParticipantRepository,
-    private val chatMessageRepository: ChatMessageRepository
+    private val chatMessageRepository: ChatMessageRepository,
+    private val applicationEventPublisher: ApplicationEventPublisher
 ) {
 
     @Transactional
@@ -80,6 +84,13 @@ class ChatService(
             }
         ).toChat(lastMessage = lastMessage)
 
+        applicationEventPublisher.publishEvent(
+            ChatParticipantJoinedEvent(
+                chatId = chatId,
+                userIds = userIds
+            )
+        )
+
         return updatedChat
     }
 
@@ -102,6 +113,13 @@ class ChatService(
             this.participants = chat.participants - participant
         }
         chatRepository.save(updatedChat)
+
+        applicationEventPublisher.publishEvent(
+            ChatParticipantLeftEvent(
+                chatId = chatId,
+                userId = userId
+            )
+        )
     }
 
     fun getChatMessages(
