@@ -15,6 +15,7 @@ import lt.vitalijus.chirp.infra.database.mappers.toChatMessage
 import lt.vitalijus.chirp.infra.database.repositories.ChatMessageRepository
 import lt.vitalijus.chirp.infra.database.repositories.ChatParticipantRepository
 import lt.vitalijus.chirp.infra.database.repositories.ChatRepository
+import org.springframework.cache.annotation.CacheEvict
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -29,6 +30,10 @@ class ChatMessageService(
 ) {
 
     @Transactional
+    @CacheEvict(
+        value = ["messages"],
+        key = "#chatId"
+    )
     fun sendMessage(
         chatId: ChatId,
         senderId: UserId,
@@ -66,6 +71,10 @@ class ChatMessageService(
         return savedMessage.toChatMessage()
     }
 
+    @CacheEvict(
+        value = ["messages"],
+        key = "#result.chatId"
+    )
     @Transactional
     fun deleteMessage(
         messageId: ChatMessageId,
@@ -86,5 +95,15 @@ class ChatMessageService(
                 chatId = message.chatId
             )
         )
+
+        evictMessagesCache(chatId = message.chatId)
+    }
+
+    @CacheEvict(
+        value = ["messages"],
+        key = "#chatId"
+    )
+    fun evictMessagesCache(chatId: ChatId) {
+        // NO-OP: Let Spring handle the cache evict
     }
 }

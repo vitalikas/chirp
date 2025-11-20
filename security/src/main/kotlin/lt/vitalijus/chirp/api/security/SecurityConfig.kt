@@ -1,4 +1,4 @@
-package lt.vitalijus.chirp.security
+package lt.vitalijus.chirp.api.security
 
 import jakarta.servlet.DispatcherType
 import lt.vitalijus.chirp.api.config.JwtAuthFilter
