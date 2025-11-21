@@ -8,7 +8,6 @@ import lt.vitalijus.chirp.api.dto.CreateChatRequest
 import lt.vitalijus.chirp.api.mappers.toChatDto
 import lt.vitalijus.chirp.api.util.requestUserId
 import lt.vitalijus.chirp.domain.events.type.ChatId
-import lt.vitalijus.chirp.service.ChatMessageService
 import lt.vitalijus.chirp.service.ChatService
 import org.springframework.web.bind.annotation.*
 import java.time.Instant
@@ -34,6 +33,23 @@ class ChatController(
             before = before,
             pageSize = pageSize
         )
+    }
+
+    @GetMapping("/{chatId}")
+    fun getChat(
+        @PathVariable("chatId") chatId: ChatId
+    ): ChatDto {
+        return chatService.getChatById(
+            chatId = chatId,
+            requestUserId = requestUserId
+        ).toChatDto()
+    }
+
+    @GetMapping()
+    fun getChatsForUser(): List<ChatDto> {
+        return chatService.findChatsByUser(
+            userId = requestUserId
+        ).map { it.toChatDto() }
     }
 
     @PostMapping

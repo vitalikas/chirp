@@ -22,8 +22,10 @@ import org.springframework.cache.annotation.Cacheable
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.server.ResponseStatusException
 import java.time.Instant
 
 @Service
@@ -143,6 +145,32 @@ class ChatService(
             .content
             .asReversed()
             .map { it.toChatMessage().toChatMessageDto() }
+    }
+
+    fun getChatById(
+        chatId: ChatId,
+        requestUserId: UserId
+    ): Chat {
+        return chatRepository
+            .findChatById(
+                id = chatId,
+                userId = requestUserId
+            )
+            ?.toChat(lastMessage = lastMessageForChat(chatId = chatId))
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+    }
+
+    fun findChatsByUser(userId: UserId): List<Chat> {
+        val chatEntities = chatRepository.findAllByUserId(userId = userId)
+        val chatIds = chatEntities.mapNotNull { it.id }
+        val latestMessages = chatMessageRepository
+            .findLatestMessagesByChatIds(chatIds = chatIds.toSet())
+            .associateBy { it.chatId }
+        return chatEntities
+            .map { entity ->
+                entity.toChat(lastMessage = latestMessages[entity.id]?.toChatMessage())
+            }
+            .sortedByDescending { it.lastActivityAt }
     }
 
     private fun lastMessageForChat(chatId: ChatId): ChatMessage? {
