@@ -13,6 +13,8 @@ import org.springframework.web.socket.WebSocketSession
 import org.springframework.web.socket.handler.TextWebSocketHandler
 import tools.jackson.databind.ObjectMapper
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.concurrent.write
 
 @Component
 class ChatWebSocketHandler(
@@ -23,6 +25,8 @@ class ChatWebSocketHandler(
 ) : TextWebSocketHandler() {
 
     private val logger = LoggerFactory.getLogger(javaClass)
+
+    private val connectionLock = ReentrantReadWriteLock()
 
     private val sessions = ConcurrentHashMap<String, UserSession>()
     private val userToSessions = ConcurrentHashMap<UserId, MutableSet<String>>()
@@ -46,7 +50,31 @@ class ChatWebSocketHandler(
             session = session
         )
 
-        sessions[session.id] = userSession
+        connectionLock.write {
+            sessions[session.id] = userSession
+
+            userToSessions.compute(userId) { _, existingSessions ->
+                (existingSessions ?: mutableSetOf()).apply {
+                    add(session.id)
+                }
+            }
+
+            val chatIds = userChatIds.computeIfAbsent(userId) {
+                val chatIds = chatService.findChatsByUser(userId = userId).map { it.id }
+                ConcurrentHashMap.newKeySet<ChatId>().apply {
+                    addAll(chatIds)
+                }
+            }
+            chatIds.forEach { chatId ->
+                chatToSessions.compute(chatId) { _, sessions ->
+                    (sessions ?: mutableSetOf()).apply {
+                        add(session.id)
+                    }
+                }
+            }
+        }
+
+        logger.info("Web socket connection established for user $userId with session ${session.id}")
     }
 
     private data class UserSession(
