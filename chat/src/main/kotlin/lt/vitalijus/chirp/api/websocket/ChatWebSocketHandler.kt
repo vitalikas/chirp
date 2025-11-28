@@ -2,6 +2,9 @@ package lt.vitalijus.chirp.api.websocket
 
 import lt.vitalijus.chirp.api.dto.ws.*
 import lt.vitalijus.chirp.api.mappers.toChatMessageDto
+import lt.vitalijus.chirp.domain.events.ChatParticipantJoinedEvent
+import lt.vitalijus.chirp.domain.events.ChatParticipantLeftEvent
+import lt.vitalijus.chirp.domain.events.MessageDeletedEvent
 import lt.vitalijus.chirp.domain.events.type.ChatId
 import lt.vitalijus.chirp.domain.events.type.UserId
 import lt.vitalijus.chirp.service.ChatMessageService
@@ -10,6 +13,8 @@ import lt.vitalijus.chirp.service.JwtService
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.stereotype.Component
+import org.springframework.transaction.event.TransactionPhase
+import org.springframework.transaction.event.TransactionalEventListener
 import org.springframework.web.socket.CloseStatus
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
@@ -185,6 +190,102 @@ class ChatWebSocketHandler(
             } catch (e: Exception) {
                 logger.error("Error sending message to user ${userSession.userId}", e)
             }
+        }
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    fun onDeleteMessage(event: MessageDeletedEvent) {
+        broadcastToChatSessions(
+            chatId = event.chatId,
+            message = OutgoingWebSocketMessage(
+                type = OutgoingWebSocketMessageType.MESSAGE_DELETED,
+                payload = objectMapper.writeValueAsString(
+                    DeleteMessageDto(
+                        chatId = event.chatId,
+                        messageId = event.messageId
+                    )
+                )
+            )
+        )
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    fun onJoinChat(event: ChatParticipantJoinedEvent) {
+        val chatId = event.chatId
+        val newUserIds = event.userIds
+
+        connectionLock.write {
+            // Add the chat to each new user's chat list
+            newUserIds.forEach { userId ->
+                userChats.compute(userId) { _, chatIds ->
+                    (chatIds ?: mutableSetOf()).apply {
+                        add(chatId)
+                    }
+                }
+
+                // Add all active sessions of this user to the chat's session list
+                userToSessions[userId]?.forEach { sessionId ->
+                    chatToSessions.compute(chatId) { _, sessions ->
+                        (sessions ?: mutableSetOf()).apply {
+                            add(sessionId)
+                        }
+                    }
+                }
+            }
+        }
+
+        logger.info("Users $newUserIds joined chat $chatId")
+
+        // Broadcast to all participants in the chat (including the new users)
+        broadcastToChatSessions(
+            chatId = chatId,
+            message = OutgoingWebSocketMessage(
+                type = OutgoingWebSocketMessageType.CHAT_PARTICIPANTS_CHANGED,
+                payload = objectMapper.writeValueAsString(
+                    ChatParticipantsChangedDto(
+                        chatId = chatId,
+                        userIds = newUserIds
+                    )
+                )
+            )
+        )
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    fun onLeftChat(event: ChatParticipantLeftEvent) {
+        val chatId = event.chatId
+        val leftUserId = event.userId
+
+        connectionLock.write {
+            userChats.compute(leftUserId) { _, chatIds ->
+                chatIds
+                    ?.apply { remove(leftUserId) }
+                    ?.takeIf { it.isNotEmpty() }
+            }
+
+            // Add all active sessions of this user to the chat's session list
+            userToSessions[leftUserId]?.forEach { sessionId ->
+                chatToSessions.compute(chatId) { _, sessions ->
+                    sessions
+                        ?.apply { remove(sessionId) }
+                        ?.takeIf { it.isNotEmpty() }
+                }
+            }
+
+            logger.info("User $leftUserId joined chat $chatId")
+
+            broadcastToChatSessions(
+                chatId = chatId,
+                message = OutgoingWebSocketMessage(
+                    type = OutgoingWebSocketMessageType.CHAT_PARTICIPANTS_CHANGED,
+                    payload = objectMapper.writeValueAsString(
+                        ChatParticipantsChangedDto(
+                            chatId = chatId,
+                            userIds = setOf(leftUserId)
+                        )
+                    )
+                )
+            )
         }
     }
 
