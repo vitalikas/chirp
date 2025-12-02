@@ -71,10 +71,6 @@ class ChatMessageService(
         return savedMessage.toChatMessage()
     }
 
-    @CacheEvict(
-        value = ["messages"],
-        key = "#result.chatId"
-    )
     @Transactional
     fun deleteMessage(
         messageId: ChatMessageId,

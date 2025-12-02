@@ -30,7 +30,6 @@ class ChatMessageEntity(
     @Column(
         name = "chat_id",
         nullable = false,
-        insertable = false,
         updatable = false
     )
     var chatId: ChatId,
@@ -48,9 +47,7 @@ class ChatMessageEntity(
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(
         name = "sender_id",
-        nullable = false,
-        insertable = false,
-        updatable = false
+        nullable = false
     )
     var sender: ChatParticipantEntity,
 
