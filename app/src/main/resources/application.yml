@@ -44,3 +44,7 @@ spring:
         - notification-dev
       prod:
         - notification-prod
+
+supabase:
+  url: "db.lpxhbjjlyomsbeepyogu.supabase.co"
+  service-key: ${SUPABASE_SERVICE_KEY}
