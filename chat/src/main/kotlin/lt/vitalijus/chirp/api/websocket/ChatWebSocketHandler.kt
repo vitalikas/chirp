@@ -5,6 +5,7 @@ import lt.vitalijus.chirp.api.mappers.toChatMessageDto
 import lt.vitalijus.chirp.domain.events.ChatParticipantJoinedEvent
 import lt.vitalijus.chirp.domain.events.ChatParticipantLeftEvent
 import lt.vitalijus.chirp.domain.events.MessageDeletedEvent
+import lt.vitalijus.chirp.domain.events.ProfilePictureUpdatedEvent
 import lt.vitalijus.chirp.domain.events.type.ChatId
 import lt.vitalijus.chirp.domain.events.type.UserId
 import lt.vitalijus.chirp.service.ChatMessageService
@@ -278,6 +279,45 @@ class ChatWebSocketHandler(
             )
         )
     }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    fun onProfilePictureUpdated(event: ProfilePictureUpdatedEvent) {
+        val userChats = connectionLock.read {
+            userChats[event.userId]?.toList() ?: emptyList()
+        }
+
+        val dto = ProfilePictureUpdateDto(
+            userId = event.userId,
+            newUrl = event.newUrl
+        )
+
+        val sessionIds = userChats.flatMap { chatId ->
+            connectionLock.read {
+                chatToSessions[chatId] ?: emptySet()
+            }
+        }
+
+        val webSocketMessage = OutgoingWebSocketMessage(
+            type = OutgoingWebSocketMessageType.PROFILE_PICTURE_UPDATED,
+            payload = objectMapper.writeValueAsString(dto)
+        )
+        val messageJson = objectMapper.writeValueAsString(webSocketMessage)
+
+        sessionIds.forEach {  sessionId ->
+            val userSession = connectionLock.read {
+                sessions[sessionId]
+            } ?: return@forEach
+
+            try {
+                if (userSession.session.isOpen) {
+                    userSession.session.sendMessage(TextMessage(messageJson))
+                }
+            } catch (e: Exception) {
+                logger.error("Couldn't send profile picture update to session $sessionId", e)
+            }
+        }
+    }
+
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     fun onLeftChat(event: ChatParticipantLeftEvent) {
