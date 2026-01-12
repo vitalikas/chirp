@@ -12,7 +12,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 
 @Component
 class JwtAuthFilter(
-    private val jwtService: JwtService,
+    private val jwtService: JwtService
 ) : OncePerRequestFilter() {
 
     override fun doFilterInternal(

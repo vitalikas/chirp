@@ -3,10 +3,12 @@ package lt.vitalijus.chirp.service
 import lt.vitalijus.chirp.domain.events.ProfilePictureUpdatedEvent
 import lt.vitalijus.chirp.domain.events.type.UserId
 import lt.vitalijus.chirp.domain.exception.ChatParticipantNotFoundException
+import lt.vitalijus.chirp.domain.exception.InvalidProfilePictureException
 import lt.vitalijus.chirp.domain.models.ProfilePictureUploadCredentials
 import lt.vitalijus.chirp.infra.database.repositories.ChatParticipantRepository
 import lt.vitalijus.chirp.infra.storage.SupabaseStorageService
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -16,7 +18,8 @@ import org.springframework.transaction.annotation.Transactional
 class ProfilePictureService(
     private val supabaseStorageService: SupabaseStorageService,
     private val chatParticipantRepository: ChatParticipantRepository,
-    private val applicationEventPublisher: ApplicationEventPublisher
+    private val applicationEventPublisher: ApplicationEventPublisher,
+    @param:Value("\${supabase.url}") private val supabaseUrl: String,
 ) {
 
     private val logger = LoggerFactory.getLogger(ProfilePictureService::class.java)
@@ -59,6 +62,8 @@ class ProfilePictureService(
         userId: UserId,
         publicUrl: String
     ) {
+        if (!publicUrl.startsWith("https://$supabaseUrl")) throw InvalidProfilePictureException("Invalid URL")
+
         val participant = chatParticipantRepository.findByIdOrNull(userId)
             ?: throw ChatParticipantNotFoundException(id = userId)
 
