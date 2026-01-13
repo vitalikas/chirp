@@ -51,4 +51,11 @@ class ChatParticipantController(
             publicUrl = body.publicUrl
         )
     }
+
+    @DeleteMapping("/profile-picture")
+    fun deleteProfilePicture() {
+        profilePictureService.deleteProfilePicture(
+            userId = requestUserId
+        )
+    }
 }
