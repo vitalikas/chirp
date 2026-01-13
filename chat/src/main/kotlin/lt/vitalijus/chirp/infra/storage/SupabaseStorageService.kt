@@ -79,6 +79,7 @@ class SupabaseStorageService(
         val response = supabaseRestClient
             .post()
             .uri("/storage/v1/object/upload/sign/$path")
+            .header("Content-Type", "application/json")
             .body(json)
             .retrieve()
             .body(SignedUploadResponse::class.java)
@@ -87,8 +88,7 @@ class SupabaseStorageService(
         return "$supabaseUrl/storage/v1${response.url}"
     }
 
-    @JvmInline
-    value class SignedUploadResponse(
+    data class SignedUploadResponse(
         val url: String
     )
 }

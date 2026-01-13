@@ -19,7 +19,7 @@ class ProfilePictureService(
     private val supabaseStorageService: SupabaseStorageService,
     private val chatParticipantRepository: ChatParticipantRepository,
     private val applicationEventPublisher: ApplicationEventPublisher,
-    @param:Value("\${supabase.url}") private val supabaseUrl: String,
+    @param:Value("\${supabase.url}") private val supabaseUrl: String
 ) {
 
     private val logger = LoggerFactory.getLogger(ProfilePictureService::class.java)
@@ -62,7 +62,7 @@ class ProfilePictureService(
         userId: UserId,
         publicUrl: String
     ) {
-        if (!publicUrl.startsWith("https://$supabaseUrl")) throw InvalidProfilePictureException("Invalid URL")
+        if (!publicUrl.startsWith(supabaseUrl)) throw InvalidProfilePictureException("Invalid URL")
 
         val participant = chatParticipantRepository.findByIdOrNull(userId)
             ?: throw ChatParticipantNotFoundException(id = userId)

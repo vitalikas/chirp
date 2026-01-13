@@ -46,5 +46,5 @@ spring:
         - notification-prod
 
 supabase:
-  url: "db.lpxhbjjlyomsbeepyogu.supabase.co"
+  url: "https://lpxhbjjlyomsbeepyogu.supabase.co"
   service-key: ${SUPABASE_SERVICE_KEY}
