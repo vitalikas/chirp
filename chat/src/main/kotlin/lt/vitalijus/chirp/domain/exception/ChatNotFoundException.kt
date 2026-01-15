@@ -1,7 +1,6 @@
 package lt.vitalijus.chirp.domain.exception
 
 import lt.vitalijus.chirp.domain.events.type.ChatId
-import lt.vitalijus.chirp.domain.events.type.UserId
 
 class ChatNotFoundException(
     private val id: ChatId
