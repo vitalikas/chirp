@@ -1,13 +1,13 @@
 server:
-  port: 8088
+  port: 8089
 
 spring:
   application:
     name: chirp
 
   datasource:
-    url: ${DATABASE_URL}
-    username: ${DATABASE_USER}
+    url: ${DATABASE_URL_IPV4}
+    username: ${DATABASE_USER_IPV4}
     password: ${DATABASE_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
