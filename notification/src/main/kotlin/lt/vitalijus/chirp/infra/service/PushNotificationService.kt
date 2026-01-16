@@ -28,9 +28,10 @@ class PushNotificationService(
         token: String,
         platform: DeviceToken.Platform
     ): DeviceToken {
-        val existing = deviceTokenRepository.findByToken(token = token)
-
         val trimmedToken = token.trim()
+
+        val existing = deviceTokenRepository.findByToken(token = trimmedToken)
+
         if (existing == null && !firebasePushNotificationService.isValidToken(token = trimmedToken)) {
             throw InvalidDeviceTokenException()
         }
@@ -56,7 +57,9 @@ class PushNotificationService(
 
     @Transactional
     fun unregisterDevice(token: String) {
-        val deviceTokenEntity = deviceTokenRepository.findByToken(token = token.trim())
+        val trimmedToken = token.trim()
+
+        val deviceTokenEntity = deviceTokenRepository.findByToken(token = trimmedToken)
         deviceTokenEntity?.let {
             deviceTokenRepository.delete(it)
         }
