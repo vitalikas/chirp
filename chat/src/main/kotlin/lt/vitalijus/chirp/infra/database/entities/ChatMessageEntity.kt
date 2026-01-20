@@ -1,6 +1,7 @@
 package lt.vitalijus.chirp.infra.database.entities
 
 import jakarta.persistence.*
+import jakarta.validation.constraints.Size
 import lt.vitalijus.chirp.domain.events.type.ChatId
 import lt.vitalijus.chirp.domain.events.type.ChatMessageId
 import org.hibernate.annotations.CreationTimestamp
@@ -25,6 +26,7 @@ class ChatMessageEntity(
     var id: ChatMessageId? = null,
 
     @Column(nullable = false)
+    @Size(max = 5000)
     var content: String,
 
     @Column(

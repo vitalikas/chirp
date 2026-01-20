@@ -303,7 +303,7 @@ class ChatWebSocketHandler(
         )
         val messageJson = objectMapper.writeValueAsString(webSocketMessage)
 
-        sessionIds.forEach {  sessionId ->
+        sessionIds.forEach { sessionId ->
             val userSession = connectionLock.read {
                 sessions[sessionId]
             } ?: return@forEach
@@ -340,7 +340,7 @@ class ChatWebSocketHandler(
                 }
             }
 
-            logger.info("User $leftUserId joined chat $chatId")
+            logger.info("User $leftUserId left chat $chatId")
 
             broadcastToChatSessions(
                 chatId = chatId,
@@ -361,7 +361,6 @@ class ChatWebSocketHandler(
         connectionLock.write {
             sessions.compute(session.id) { _, userSession ->
                 userSession?.copy(lastPongTimestamp = System.currentTimeMillis())
-
             }
         }
         logger.debug("Received pong from ${session.id}")
