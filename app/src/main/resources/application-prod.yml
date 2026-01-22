@@ -1,7 +1,4 @@
 spring:
-  profiles:
-    include:
-      - notification-prod
   jpa:
     hibernate:
       ddl-auto: validate
