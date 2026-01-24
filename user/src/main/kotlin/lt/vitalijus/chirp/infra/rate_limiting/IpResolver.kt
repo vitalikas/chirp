@@ -57,6 +57,13 @@ class IpResolver(
     fun getClientIp(request: HttpServletRequest): String {
         val remoteAddr = request.remoteAddr
 
+        logger.warn(
+            "IP DEBUG → remoteAddr={}, X-Real-IP={}, X-Forwarded-For={}",
+            remoteAddr,
+            request.getHeader("X-Real-IP"),
+            request.getHeader("X-Forwarded-For")
+        )
+
         if (!isFromTrustedProxy(ip = remoteAddr)) {
             if (nginxConfig.requireProxy) {
                 logger.warn("Direct connection attempt from $remoteAddr")
