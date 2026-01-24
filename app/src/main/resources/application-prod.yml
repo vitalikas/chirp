@@ -15,11 +15,11 @@ jwt:
   expiration-minutes: 15
 
 nginx:
-  require-proxy: true  # TODO: Fix trusted IPs and set back to true
+  require-proxy: true
 
 chirp:
   rate-limit:
     ip:
       apply-limit: true
   web-socket:
-    allowed-origins: "https://chirp.vitalijus.lt"
+    allowed-origins: ${ALLOWED_ORIGINS:http://localhost:${server.port}}
