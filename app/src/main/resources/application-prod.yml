@@ -7,10 +7,6 @@ spring:
         show_sql: false
         format_sql: false
 
-logging:
-  level:
-    lt.vitalijus.chirp.infra.rate_limiting: DEBUG
-
 jwt:
   expiration-minutes: 15
 
