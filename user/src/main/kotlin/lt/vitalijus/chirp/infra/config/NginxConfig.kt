@@ -7,5 +7,5 @@ import org.springframework.context.annotation.Configuration
 @ConfigurationProperties(prefix = "nginx")
 data class NginxConfig(
     var trustedIps: List<String> = emptyList(),
-    var requireProxy: Boolean = false
+    var requireProxy: Boolean = true
 )
