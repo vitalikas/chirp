@@ -15,7 +15,7 @@ jwt:
   expiration-minutes: 15
 
 nginx:
-  require-proxy: false  # TODO: Fix trusted IPs and set back to true
+  require-proxy: true  # TODO: Fix trusted IPs and set back to true
 
 chirp:
   rate-limit:
