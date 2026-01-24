@@ -7,13 +7,15 @@ spring:
         show_sql: false
         format_sql: false
 
+logging:
+  level:
+    lt.vitalijus.chirp.infra.rate_limiting: DEBUG
+
 jwt:
   expiration-minutes: 15
 
 nginx:
   require-proxy: true
-  trusted-ips:
-    - 127.0.0.1
 
 chirp:
   rate-limit:

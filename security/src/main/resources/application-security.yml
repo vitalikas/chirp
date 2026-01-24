@@ -5,5 +5,6 @@ nginx:
   trusted-ips:
     - "127.0.0.1" #nginx on same machine
     - "::1" #IPv6 localhost
-    - "172.17.0.0/16" #nginx container IP when using Docker
-    - "10.0.0.5/32" #nginx server IP (if separate machine)
+    - "172.16.0.0/12" #Docker bridge networks
+    - "10.0.0.0/8" #Private network range
+    - "192.168.0.0/16" #Private network range

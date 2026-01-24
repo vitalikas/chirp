@@ -57,7 +57,7 @@ class IpResolver(
     fun getClientIp(request: HttpServletRequest): String {
         val remoteAddr = request.remoteAddr
 
-        logger.warn(
+        logger.debug(
             "IP DEBUG → remoteAddr={}, X-Real-IP={}, X-Forwarded-For={}",
             remoteAddr,
             request.getHeader("X-Real-IP"),
