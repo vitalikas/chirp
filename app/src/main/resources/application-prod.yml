@@ -12,6 +12,8 @@ jwt:
 
 nginx:
   require-proxy: true
+  trusted-ips:
+    - 127.0.0.0/8
 
 chirp:
   rate-limit:
