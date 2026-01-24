@@ -11,7 +11,7 @@ jwt:
   expiration-minutes: 15
 
 nginx:
-  require-proxy: true
+  require-proxy: false
   trusted-ips:
     - 127.0.0.1
 
