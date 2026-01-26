@@ -2,6 +2,7 @@ package lt.vitalijus.chirp.service
 
 import lt.vitalijus.chirp.api.dto.ChatMessageDto
 import lt.vitalijus.chirp.api.mappers.toChatMessageDto
+import lt.vitalijus.chirp.domain.events.ChatCreatedEvent
 import lt.vitalijus.chirp.domain.events.ChatParticipantJoinedEvent
 import lt.vitalijus.chirp.domain.events.ChatParticipantLeftEvent
 import lt.vitalijus.chirp.domain.events.type.ChatId
@@ -53,12 +54,19 @@ class ChatService(
         val creator = chatParticipantRepository.findByIdOrNull(creatorId)
             ?: throw ChatParticipantNotFoundException(id = creatorId)
 
-        return chatRepository.save(
+        return chatRepository.saveAndFlush(
             ChatEntity(
                 creator = creator,
                 participants = setOf(creator) + otherParticipants,
             )
-        ).toChat(lastMessage = null)
+        ).toChat(lastMessage = null).also { chat ->
+            applicationEventPublisher.publishEvent(
+                ChatCreatedEvent(
+                    chatId = chat.id,
+                    participantIds = chat.chatParticipants.map { it.userId }
+                )
+            )
+        }
     }
 
     @Transactional

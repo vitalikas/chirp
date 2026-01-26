@@ -2,6 +2,7 @@ package lt.vitalijus.chirp.api.websocket
 
 import lt.vitalijus.chirp.api.dto.ws.*
 import lt.vitalijus.chirp.api.mappers.toChatMessageDto
+import lt.vitalijus.chirp.domain.events.ChatCreatedEvent
 import lt.vitalijus.chirp.domain.events.ChatParticipantJoinedEvent
 import lt.vitalijus.chirp.domain.events.ChatParticipantLeftEvent
 import lt.vitalijus.chirp.domain.events.MessageDeletedEvent
@@ -278,6 +279,27 @@ class ChatWebSocketHandler(
                 )
             )
         )
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    fun onChatCreated(event: ChatCreatedEvent) {
+        connectionLock.write {
+            event.participantIds.forEach { userId ->
+                userChats.compute(userId) { _, chatIds ->
+                    (chatIds ?: mutableSetOf()).apply {
+                        add(event.chatId)
+                    }
+                }
+
+                userToSessions[userId]?.forEach { sessionId ->
+                    chatToSessions.compute(event.chatId) { _, sessions ->
+                        (sessions ?: mutableSetOf()).apply {
+                            add(sessionId)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
