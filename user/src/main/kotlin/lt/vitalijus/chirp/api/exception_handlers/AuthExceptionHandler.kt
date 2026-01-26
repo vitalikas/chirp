@@ -103,7 +103,7 @@ class AuthExceptionHandler {
     ): ResponseEntity<Map<String, Any>> {
         val error = e.message ?: "Email not verified"
         return ResponseEntity
-            .status(HttpStatus.UNAUTHORIZED)
+            .status(HttpStatus.FORBIDDEN)
             .body(
                 mapOf(
                     "code" to "EMAIL_NOT_VERIFIED",
