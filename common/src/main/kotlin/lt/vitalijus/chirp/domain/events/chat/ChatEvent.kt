@@ -18,6 +18,6 @@ sealed class ChatEvent(
         val recipientIds: Set<UserId>,
         val chatId: ChatId,
         val message: String,
-        override val eventKey: String = ChatEventConstants.CHAT_NEW_MESSAGE,
+        override val eventKey: String = ChatEventConstants.CHAT_NEW_MESSAGE_KEY,
     ) : ChatEvent()
 }

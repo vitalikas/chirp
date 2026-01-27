@@ -1,9 +1,5 @@
 package lt.vitalijus.chirp.infra.message_queue
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import lt.vitalijus.chirp.domain.events.ChirpEvent
 import lt.vitalijus.chirp.domain.events.chat.ChatEventConstants
 import lt.vitalijus.chirp.domain.events.user.UserEventConstants
@@ -14,46 +10,55 @@ import org.springframework.amqp.core.TopicExchange
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory
 import org.springframework.amqp.rabbit.connection.ConnectionFactory
 import org.springframework.amqp.rabbit.core.RabbitTemplate
-import org.springframework.amqp.support.converter.Jackson2JavaTypeMapper
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
+import org.springframework.amqp.support.converter.JacksonJavaTypeMapper
+import org.springframework.amqp.support.converter.JacksonJsonMessageConverter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.PlatformTransactionManager
 import org.springframework.transaction.annotation.EnableTransactionManagement
+import tools.jackson.databind.DefaultTyping
+import tools.jackson.databind.json.JsonMapper
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator
+import tools.jackson.module.kotlin.kotlinModule
 
 @Configuration
 @EnableTransactionManagement
 class RabbitMqConfig {
 
+    /**
+     * Configures Jackson to serialize/deserialize ChirpEvent domain events to/from JSON.
+     * Polymorphic serialization allows different event subtypes like UserCreatedEvent, MessageSentEvent to be properly
+     * serialized with type information.
+     */
     @Bean
-    fun messageConverter(): Jackson2JsonMessageConverter {
-        val objectMapper = ObjectMapper().apply {
-            registerModule(KotlinModule.Builder().build())
-            registerModule(JavaTimeModule())
-            findAndRegisterModules()
+    fun messageConverter(): JacksonJsonMessageConverter {
+        val polymorphicTypeValidator = BasicPolymorphicTypeValidator.builder()
+            .allowIfBaseType(ChirpEvent::class.java)
+            .allowIfSubType("java.util.") // Allow Java lists
+            .allowIfSubType("kotlin.collections.") // Kotlin collections
+            .build()
 
-            val polymorphicTypeValidator = BasicPolymorphicTypeValidator.builder()
-                .allowIfBaseType(ChirpEvent::class.java)
-                .allowIfSubType("java.util.") // Allow Java lists
-                .allowIfSubType("kotlin.collections.") // Allow Kotlin collections
-                .build()
+        val objectMapper = JsonMapper.builder()
+            .addModule(kotlinModule())
+            .polymorphicTypeValidator(polymorphicTypeValidator)
+            .activateDefaultTyping(polymorphicTypeValidator, DefaultTyping.NON_FINAL)
+            .build()
 
-            activateDefaultTyping(
-                polymorphicTypeValidator,
-                ObjectMapper.DefaultTyping.NON_FINAL
-            )
-        }
-
-        return Jackson2JsonMessageConverter(objectMapper).apply {
-            typePrecedence = Jackson2JavaTypeMapper.TypePrecedence.TYPE_ID
+        return JacksonJsonMessageConverter(objectMapper).apply {
+            typePrecedence = JacksonJavaTypeMapper.TypePrecedence.TYPE_ID
         }
     }
 
+    /**
+     * Sets up the listener factory that processes incoming messages.
+     * Transactional: setChannelTransacted(true) ensures messages are processed reliably if processing fails,
+     * the message goes back to the queue.
+     */
     @Bean
     fun rabbitListenerContainerFactory(
         connectionFactory: ConnectionFactory,
         transactionManager: PlatformTransactionManager,
-        messageConverter: Jackson2JsonMessageConverter
+        messageConverter: JacksonJsonMessageConverter
     ): SimpleRabbitListenerContainerFactory {
         return SimpleRabbitListenerContainerFactory().apply {
             setConnectionFactory(connectionFactory)
@@ -63,16 +68,23 @@ class RabbitMqConfig {
         }
     }
 
+    /**
+     * RabbitTemplate is used to publish messages to exchanges.
+     * Uses the same JSON converter for consistent serialization.
+     */
     @Bean
     fun rabbitTemplate(
         connectionFactory: ConnectionFactory,
-        messageConverter: Jackson2JsonMessageConverter
+        messageConverter: JacksonJsonMessageConverter
     ): RabbitTemplate {
         return RabbitTemplate(connectionFactory).apply {
             this.messageConverter = messageConverter
         }
     }
 
+    /**
+     * Routes user-related events like user registration, profile updates.
+     */
     @Bean
     fun userExchange() = TopicExchange(
         UserEventConstants.USER_EXCHANGE,
@@ -80,6 +92,9 @@ class RabbitMqConfig {
         false
     )
 
+    /**
+     * Routes chat-related events like new messages.
+     */
     @Bean
     fun chatExchange() = TopicExchange(
         ChatEventConstants.CHAT_EXCHANGE,
@@ -117,17 +132,6 @@ class RabbitMqConfig {
     }
 
     @Bean
-    fun notificationChatEventsBinding(
-        notificationChatEventsQueue: Queue,
-        chatExchange: TopicExchange
-    ): Binding {
-        return BindingBuilder
-            .bind(notificationChatEventsQueue)
-            .to(chatExchange)
-            .with(ChatEventConstants.CHAT_NEW_MESSAGE)
-    }
-
-    @Bean
     fun chatUserEventsBinding(
         chatUserEventsQueue: Queue,
         userExchange: TopicExchange
@@ -136,5 +140,16 @@ class RabbitMqConfig {
             .bind(chatUserEventsQueue)
             .to(userExchange)
             .with("user.*")
+    }
+
+    @Bean
+    fun notificationChatEventsBinding(
+        notificationChatEventsQueue: Queue,
+        chatExchange: TopicExchange
+    ): Binding {
+        return BindingBuilder
+            .bind(notificationChatEventsQueue)
+            .to(chatExchange)
+            .with(ChatEventConstants.CHAT_NEW_MESSAGE_KEY)
     }
 }

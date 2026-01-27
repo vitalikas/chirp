@@ -1,9 +1,8 @@
 [versions]
 kotlin = "2.2.20"
-spring-boot = "4.0.0-SNAPSHOT"
+spring-boot = "4.0.0"
 spring-dependency-management = "1.1.7"
 
-jackson = "2.17.0"
 jakarta = "6.1.0"
 jwt = "0.12.6"
 okhttp = "4.12.0"
@@ -38,9 +37,8 @@ jwt-api = { module = "io.jsonwebtoken:jjwt-api", version.ref = "jwt" }
 jwt-impl = { module = "io.jsonwebtoken:jjwt-impl", version.ref = "jwt" }
 jwt-jackson = { module = "io.jsonwebtoken:jjwt-jackson", version.ref = "jwt" }
 
-# Jackson
-jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
-jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson" }
+# Jackson 3.x (versions managed by Spring Boot BOM)
+jackson-module-kotlin = { module = "tools.jackson.module:jackson-module-kotlin" }
 
 # Kotlin
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }

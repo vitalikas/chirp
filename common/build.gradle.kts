@@ -11,7 +11,6 @@ dependencies {
     implementation(libs.spring.boot.starter.security)
     implementation(libs.kotlin.reflect)
     implementation(libs.jackson.module.kotlin)
-    implementation(libs.jackson.datatype.jsr310)
     implementation(libs.spring.boot.starter.amqp)
 
     implementation(libs.jwt.api)
