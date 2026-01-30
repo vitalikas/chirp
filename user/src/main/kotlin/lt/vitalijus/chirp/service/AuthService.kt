@@ -86,17 +86,16 @@ class AuthService(
         }
 
         return user.id?.let { userId ->
-            val accessToken = jwtService.generateAccessToken(userId = userId)
-            val refreshToken = jwtService.generateRefreshToken(userId = userId)
+            val tokens = jwtService.generateTokenPair(userId = userId)
             storeRefreshToken(
                 userId = userId,
-                token = refreshToken
+                token = tokens.refreshToken
             )
 
             AuthenticatedUser(
                 user = user.toUser(),
-                accessToken = accessToken,
-                refreshToken = refreshToken
+                accessToken = tokens.accessToken,
+                refreshToken = tokens.refreshToken
             )
         } ?: throw UserNotFoundException()
     }
@@ -125,18 +124,17 @@ class AuthService(
                 hashedToken = hashedToken
             )
 
-            val newAccessToken = jwtService.generateAccessToken(userId = userId)
-            val newRefreshToken = jwtService.generateRefreshToken(userId = userId)
+            val tokens = jwtService.generateTokenPair(userId = userId)
 
             storeRefreshToken(
                 userId = userId,
-                token = newRefreshToken
+                token = tokens.refreshToken
             )
 
             AuthenticatedUser(
                 user = user.toUser(),
-                accessToken = newAccessToken,
-                refreshToken = newRefreshToken
+                accessToken = tokens.accessToken,
+                refreshToken = tokens.refreshToken
             )
         } ?: throw UserNotFoundException()
     }

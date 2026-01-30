@@ -23,19 +23,26 @@ class JwtService(
     private val accessTokenValidityMs = expirationMinutes * 60 * 1000L
     val refreshTokenValidityMs = 30 * 24 * 60 * 60 * 1000L
 
-    fun generateAccessToken(userId: UserId): String {
-        return generateToken(
+    fun generateTokenPair(userId: UserId): TokenPair {
+        val now = Date()
+
+        val accessToken = generateToken(
             userId = userId,
             type = "access",
-            expiry = accessTokenValidityMs
+            expiry = accessTokenValidityMs,
+            issuedAt = now
         )
-    }
 
-    fun generateRefreshToken(userId: UserId): String {
-        return generateToken(
+        val refreshToken = generateToken(
             userId = userId,
             type = "refresh",
-            expiry = refreshTokenValidityMs
+            expiry = refreshTokenValidityMs,
+            issuedAt = now
+        )
+
+        return TokenPair(
+            accessToken = accessToken,
+            refreshToken = refreshToken
         )
     }
 
@@ -63,13 +70,13 @@ class JwtService(
         userId: UserId,
         type: String,
         expiry: Long,
+        issuedAt: Date
     ): String {
-        val now = Date()
-        val expiryDate = Date(now.time + expiry)
+        val expiryDate = Date(issuedAt.time + expiry)
         return Jwts.builder()
             .subject(userId.toString())
             .claim("type", type)
-            .issuedAt(now)
+            .issuedAt(issuedAt)
             .expiration(expiryDate)
             .signWith(secretKey, Jwts.SIG.HS256)
             .compact()
@@ -91,4 +98,9 @@ class JwtService(
             null
         }
     }
+
+    data class TokenPair(
+        val accessToken: String,
+        val refreshToken: String
+    )
 }
